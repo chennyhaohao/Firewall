@@ -85,7 +85,7 @@ public class Firewall {
 	public boolean accept_packet(String direction, String protocol, int port, 
 			String ip) {
 		TreeSet<Range> s = allowedList.get(convertDirection(direction))
-				.get(convertProtocol(protocol)).get(port);
+				.get(convertProtocol(protocol)).get(port-1);
 		Range r = new Range(convertIP(ip), convertIP(ip));
 		Range f = s.floor(r);
 		if (f == null)
@@ -99,7 +99,7 @@ public class Firewall {
 		long e = convertIP(ipe);
 		List<TreeSet<Range>> l = allowedList.get(convertDirection(direction))
 				.get(convertProtocol(protocol));
-		for (int i=ports; i<= porte; i++) {
+		for (int i=ports-1; i<= porte-1; i++) {
 			l.get(i).add(new Range(s, e));
 		}
 	}
