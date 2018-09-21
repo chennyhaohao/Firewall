@@ -1,4 +1,7 @@
 import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Firewall {
 	protected static int portRange = 65535;	
@@ -7,7 +10,7 @@ public class Firewall {
 	
 	protected List<List<List<TreeSet<Range>>>> allowedList;
 	
-	public Firewall(String fpath) {
+	public Firewall(String fpath) throws IOException {
 		allowedList = new ArrayList<List<List<TreeSet<Range>>>>(directions.length);
 		for (int i=0; i<directions.length; i++) {
 			allowedList.add(new ArrayList<List<TreeSet<Range>>>(protocols.length));
@@ -18,15 +21,79 @@ public class Firewall {
 				}
 			}
 		}
-		System.out.println("Firewall initialized");
+		FileReader fr = null;
+		BufferedReader br = null;
+		try {
+
+			//br = new BufferedReader(new FileReader(FILENAME));
+			fr = new FileReader(fpath);
+			br = new BufferedReader(fr);
+
+			String line;
+			int ports, porte;
+			String ips, ipe;
+			
+			//Parse CSV and insert all rules
+			while ((line = br.readLine()) != null) { 
+				String[] args = line.split(", ");
+				String[] portArgs = args[2].split("-");
+				ports = Integer.parseInt(portArgs[0]);
+				if (portArgs.length == 2)
+					porte = Integer.parseInt(portArgs[1]);
+				else
+					porte = ports;
+				String[] ipArgs = args[3].split("-");
+				ips = ipArgs[0];
+				if (ipArgs.length == 2)
+					ipe = ipArgs[1];
+				else
+					ipe = ips;
+				insertRule(args[0], args[1], ports, porte, ips, ipe);
+			}
+			
+			// Then merge ranges for fast queries
+			for (List<List<TreeSet<Range>>> i: allowedList) { 
+				for (List<TreeSet<Range>> j: i) {
+					for (TreeSet<Range> s: j)
+						mergeRanges(s);
+				}
+			}
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		} finally {
+
+			try {
+
+				if (br != null)
+					br.close();
+
+				if (fr != null)
+					fr.close();
+
+			} catch (IOException ex) {
+
+				ex.printStackTrace();
+
+			}
+
+		}
 	}
 	
 	public boolean accept_packet(String direction, String protocol, int port, 
 			String ip) {
-		return true;
+		TreeSet<Range> s = allowedList.get(convertDirection(direction))
+				.get(convertProtocol(protocol)).get(port);
+		Range r = new Range(convertIP(ip), convertIP(ip));
+		Range f = s.floor(r);
+		if (f == null)
+			return false;
+		return (f.end >= r.end);
 	}
 	
-	protected void insert(String direction, String protocol, int ports, int porte,
+	protected void insertRule(String direction, String protocol, int ports, int porte,
 			String ips, String ipe) {
 		long s = convertIP(ips);
 		long e = convertIP(ipe);
