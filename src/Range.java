@@ -7,7 +7,7 @@ public class Range implements Comparable<Range> {
 		end = e;
 	}
 	@Override
-	public int compareTo(Range r) {
+	public int compareTo(Range r) { //sort by starting position, and distinguish between different intervals
 		if (start < r.start)
 			return -1;
 		if (start > r.start)

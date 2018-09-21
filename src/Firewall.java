@@ -86,7 +86,7 @@ public class Firewall {
 		TreeSet<Range> s = allowedList.get(convertDirection(direction))
 				.get(convertProtocol(protocol)).get(port-1);
 		Range r = new Range(convertIP(ip), convertIP(ip));
-		//Search in non-overlapping ip ranges to see if ip covered
+		//Search in sorted, non-overlapping ip ranges to see if ip covered
 		Range f = s.floor(r);
 		if (f == null)
 			return false;

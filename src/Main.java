@@ -6,8 +6,8 @@ import java.util.Random;
 
 public class Main {
 	public static void main(String[] args) throws java.io.IOException {
-		//small_test("./small_test.txt");	
-		//edge_test("./edge_test.txt");
+		small_test("./small_test.txt");	
+		edge_test("./edge_test.txt");
 		generateLargeTest("./large_test_.txt");
 		large_test("./large_test_.txt");
 	}
@@ -42,12 +42,12 @@ public class Main {
 	    for (int i=0; i<500000; i++) {
 	    	int ports = r.nextInt(65534) + 1;
 		    int porte = r.nextInt(65535 - ports) + ports + 1;
-		    int ip = r.nextInt(256);
+	    	//int porte = ports+1;
+		    int ip0 = r.nextInt(256);
 		    int ip1 = r.nextInt(256);
-	    	//writer.write(String.format("inbound,tcp,%d-%d,0.0.0.%d-255.255.255.%d\r\n",
-	    			//ports, porte, ip, ip1));
-		    writer.write(String.format("inbound,tcp,%d-%d,0.0.0.0-255.255.255.255\r\n",
-		    		ports, porte));
+	    	writer.write(String.format("inbound,tcp,%d-%d,0.0.0.%d-255.255.255.%d\r\n",
+	    			ports, porte, ip0, ip1));
+		    
 	    }
 	    writer.close();
 	}
@@ -61,5 +61,6 @@ public class Main {
 			f.accept_packet("inbound", "udp", 65535, "0.0.0.0");
 			f.accept_packet("outbound", "tcp", 53, "192.168.2.1");
 		}
+		System.out.println("queries completed");
 	}
 }
