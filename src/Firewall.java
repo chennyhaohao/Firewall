@@ -10,7 +10,7 @@ public class Firewall {
 	
 	protected List<List<List<TreeSet<Range>>>> allowedList;
 	
-	public Firewall(String fpath) throws IOException {
+	public Firewall(String fpath) {
 		allowedList = new ArrayList<List<List<TreeSet<Range>>>>(directions.length);
 		for (int i=0; i<directions.length; i++) {
 			allowedList.add(new ArrayList<List<TreeSet<Range>>>(protocols.length));
@@ -35,7 +35,7 @@ public class Firewall {
 			
 			//Parse CSV and insert all rules
 			while ((line = br.readLine()) != null) { 
-				String[] args = line.split(", ");
+				String[] args = line.split(",");
 				String[] portArgs = args[2].split("-");
 				ports = Integer.parseInt(portArgs[0]);
 				if (portArgs.length == 2)
@@ -129,7 +129,7 @@ public class Firewall {
 		long power = 1;
 		long result = 0;
 		String[] digits = ip.split(".");
-		for (int i=3; i>=0; i--) {
+		for (int i=digits.length-1; i>=0; i--) {
 			int d = Integer.parseInt(digits[i]);
 			result += power * d;
 			power *= base;
