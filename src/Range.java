@@ -12,6 +12,6 @@ public class Range implements Comparable<Range> {
 			return -1;
 		if (start > r.start)
 			return 1;
-		return 0;
+		return (int)(end - r.end);
 	}
 }

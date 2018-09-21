@@ -1,9 +1,15 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.TreeSet;
+import java.util.Random;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws java.io.IOException {
 		//small_test("./small_test.txt");	
-		edge_test("./edge_test.txt");
+		//edge_test("./edge_test.txt");
+		//generateLargeTest("./large_test_.txt");
+		large_test("./large_test_.txt");
 	}
 	
 	public static void small_test(String fpath) {
@@ -27,5 +33,28 @@ public class Main {
 		assert(f.accept_packet("outbound", "udp", 65535, "0.0.0.0"));
 		assert(!f.accept_packet("inbound", "udp", 65535, "0.0.0.0"));
 		assert(!f.accept_packet("outbound", "tcp", 53, "192.168.2.1"));
+	}
+	
+	public static void generateLargeTest(String fpath) throws IOException {
+		Random r = new Random();
+	    BufferedWriter writer = new BufferedWriter(new FileWriter(fpath));
+	    
+	    for (int i=0; i<1000000; i++) {
+	    	int ports = r.nextInt(65535) + 1;
+		    int porte = r.nextInt(65535 - ports) + ports + 1;
+		    int ip = r.nextInt(256);
+		    int ip1 = r.nextInt(256);
+	    	writer.write(String.format("inbound,tcp,%d-%d,0.0.0.%d-255.255.255.%d\r\n",
+	    			ports, porte, ip, ip1));
+	    }
+	    writer.close();
+	}
+	
+	public static void large_test(String fpath) {
+		System.out.println("test started");
+		Firewall f = new Firewall(fpath);
+		f.accept_packet("inbound", "tcp", 53, "192.168.2.1");
+		f.accept_packet("inbound", "udp", 65535, "0.0.0.0");
+		f.accept_packet("outbound", "tcp", 53, "192.168.2.1");
 	}
 }
