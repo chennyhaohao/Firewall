@@ -25,7 +25,6 @@ public class Firewall {
 		BufferedReader br = null;
 		try {
 
-			//br = new BufferedReader(new FileReader(FILENAME));
 			fr = new FileReader(fpath);
 			br = new BufferedReader(fr);
 
@@ -51,7 +50,7 @@ public class Firewall {
 				insertRule(args[0], args[1], ports, porte, ips, ipe);
 			}
 			
-			// Then merge ranges for fast queries
+			// Then merge ranges for fast O(logn) time queries
 			for (List<List<TreeSet<Range>>> i: allowedList) { 
 				for (List<TreeSet<Range>> j: i) {
 					for (TreeSet<Range> s: j)
@@ -83,10 +82,11 @@ public class Firewall {
 	}
 	
 	public boolean accept_packet(String direction, String protocol, int port, 
-			String ip) {
+			String ip) { 
 		TreeSet<Range> s = allowedList.get(convertDirection(direction))
 				.get(convertProtocol(protocol)).get(port-1);
 		Range r = new Range(convertIP(ip), convertIP(ip));
+		//Search in non-overlapping ip ranges to see if ip covered
 		Range f = s.floor(r);
 		if (f == null)
 			return false;
@@ -104,7 +104,7 @@ public class Firewall {
 		}
 	}
 	
-	protected void mergeRanges(TreeSet<Range> ranges) {
+	protected void mergeRanges(TreeSet<Range> ranges) { //Merge intervals into non-overlapping ones
 		if (ranges.size() == 0)
 			return;
 		Iterator<Range> iter = ranges.iterator();
@@ -112,7 +112,8 @@ public class Firewall {
 		Range next;
 	    while (iter.hasNext()) {
 	    	next = iter.next();
-	    	while (curr.end >= next.start) {
+	    	while (curr.end >= next.start) { 
+	    		//if curr and next overlap, merge by extending curr and removing next
 	    		curr.end = Math.max(curr.end, next.end);
 	    		iter.remove();
 	    		if (iter.hasNext()) 
